@@ -5,5 +5,5 @@
  */
 package vo;
 
-public class Message {
+public class Messages {
 }
