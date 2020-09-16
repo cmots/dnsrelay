@@ -25,8 +25,8 @@ public class Display {
     	System.out.println("Name server 202.106.0.20:53.");
     	System.out.println("Debug level 0.");
     	System.out.println("Bind UDP port 53 ...OK!");
-    	System.out.println("Try to load table \"dnsrelay.txt\" ... OK");
-    	System.out.println("2 names, occupy 37 bytes memory");
+    	System.out.println("Try to load table dnsrelay.txt ... OK");
+		System.out.println("Try to load table config.txt ... OK");
     }
 
     /**
@@ -38,7 +38,7 @@ public class Display {
      * @throws IOException 
      */
     public void displayResponse(String output) throws IOException, InterruptedException{
-    	Process p = Runtime.getRuntime().exec("ping www.baidu.com");	//��ɫ��Ϊִ�е�����
+    	  Process p = Runtime.getRuntime().exec("ping www.baidu.com");	//��ɫ��Ϊִ�е�����
     	  InputStream is = p.getInputStream();
     	  BufferedReader reader = new BufferedReader(new InputStreamReader(is));
     	  String line;

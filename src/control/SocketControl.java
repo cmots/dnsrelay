@@ -5,12 +5,12 @@
  */
 package control;
 
-import vo.Message;
-
+import vo.Messages;
 import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+
 
 public class SocketControl {
 
@@ -22,7 +22,7 @@ public class SocketControl {
      * @param
      * @return
      */
-    protected SocketControl() {
+    public SocketControl() {
         try {
             this.socket = new DatagramSocket(53);
         } catch (Exception e) {
@@ -44,6 +44,20 @@ public class SocketControl {
         byte[] bytes = string2Bytes(data);
         try {
             DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length, InetAddress.getByName(IP),port);
+            socket.send(datagramPacket);
+            System.out.println("Successfully send");
+        }
+        catch (Exception e) {
+            System.out.println("bug in send\n");
+            e.printStackTrace();
+        }
+    }
+
+    protected void send(byte[] data, String IP, int port) {
+        try {
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress.getByName(IP),port);
+            socket.send(datagramPacket);
+            System.out.println("Successfully send");
         }
         catch (Exception e) {
             System.out.println("bug in send\n");
@@ -57,12 +71,12 @@ public class SocketControl {
      * @param
      * @return
      */
-    protected Message receive(){
+    protected Messages receive(){
         byte[] bytes = new byte[1024];
         DatagramPacket datagramPacket = new DatagramPacket(bytes,bytes.length);
         try {
             socket.receive(datagramPacket);
-            Message message = new Message(datagramPacket);
+            Messages message = new Messages(datagramPacket);
             return message;
         }
         catch (Exception e){
@@ -91,8 +105,5 @@ public class SocketControl {
         this.socket.close();
     }
 
-    @Override
-    protected void finalize(){
-        socketClose();
-    }
+
 }

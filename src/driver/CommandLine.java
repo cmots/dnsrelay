@@ -26,14 +26,9 @@ public class CommandLine {
      * @throws InterruptedException 
      * @throws IOException 
      */
-    public CommandLine(String commands){
-    	this.dbgLevel = 0;
-    	this.dns_file=null;
-    	this.dns_server=null;
-    	
-    	System.out.println(commands);
-    	String str=commands.replaceAll(" ",",");
-    	System.out.println(str);
+    public CommandLine(String[] commands){
+        // TODO 分析指令，dbgLevel先不做
+
     }
 
     /**################# getter & setter ####################*/

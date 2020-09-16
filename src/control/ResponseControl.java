@@ -5,9 +5,31 @@
  */
 package control;
 
-public class ResponseControl {
-    //这里不需要socket
-    public void response(){
+import org.xbill.DNS.*;
 
+
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+
+public class ResponseControl {
+    public void response(SocketControl socket){
+        Messages messages = socket.receive();
+        Message outdata = messages.getOutdata();
+        InetAddress sourceIpAddr = messages.getSourceIpAddr();
+        InetAddress answerIpAddr = messages.getAnswerIpAddr();
+        int sourcePort = messages.getSourcePort();
+        int type = messages.getQueryType();
+        Record question = messages.getQuestion();
+
+        //when type is 28,it stands for ipv6
+        if(type == 28){
+            Record answer = new AAAARecord(question.getName(), question.getDClass(), 64, answerIpAddr);
+            outdata.addRecord(answer, Section.ANSWER);
+        }else if(type == 1){
+            Record answer = new ARecord(question.getName(), question.getDClass(), 64, answerIpAddr);
+            outdata.addRecord(answer, Section.ANSWER);
+        }
+        byte[] buf = outdata.toWire();
+        socket.send(buf, sourceIpAddr.toString(), sourcePort);
     }
 }
