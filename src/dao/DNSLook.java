@@ -31,7 +31,6 @@ public class DNSLook {
         file = new File("resources/config.txt");
         if(file.isFile() && file.exists()) {
             try {
-                list = new ArrayList<>();
                 FileInputStream fileInputStream = new FileInputStream(file);
                 InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);

@@ -11,12 +11,10 @@ import vo.Message;
 import java.net.DatagramPacket;
 
 public class RequestControl {
-    public void request(Message message) {
-        SocketControl socket = new SocketControl();
+    public void request(SocketControl socket, Message message) {
         try {
             DNSLook dnsLook = new DNSLook();
             String ip = dnsLook.look(message.getQueryName());
-            System.out.println(ip);
             switch (message.getQueryType()) {
                 case 1:
                     System.out.println("** IPv4 query **");
@@ -34,13 +32,13 @@ public class RequestControl {
                             break;
 
                         default:
-                            System.out.println("Query target found ");
-
+                            System.out.println("in local");
+                            message.setAddress(ip);
+                            System.out.println(ip);
                             message.setAnswerRRs(1);
                             message.setQR(1);
                             message.setAnswerName(ip);
                             socket.send(message.makePacket(true), "127.0.0.1", 53);
-                            System.out.println("cao");
                             break;
                     }
                     break;
@@ -61,7 +59,7 @@ public class RequestControl {
                             break;
 
                         default:
-                            System.out.println("Query target found ");
+                            System.out.println("in local");
 
                             message.setAnswerRRs(1);
                             message.setQR(1);

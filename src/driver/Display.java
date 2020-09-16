@@ -22,8 +22,7 @@ public class Display {
      * @note: design this based on teacher's programme
      */
     public void welcome(){
-    	System.out.println("DNSRELAY, Version 1.30, Build: Feb 22 2011 10:08:17");
-    	System.out.println("Usage: dnsrelay [<dns-server>] [<db-file>]");
+    	//System.out.println("Usage: dnsrelay [<dns-server>] [<db-file>]");
     	System.out.println("Name server "+new DNSLook().address +".");
     	System.out.println("Bind UDP port 53 ...OK!");
     	System.out.println("Loading dnsrelay.txt ... OK");

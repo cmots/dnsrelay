@@ -25,8 +25,8 @@ public class Main {
         display.welcome();
         while(true){
             Message message = socketControl.receive();
-            requestControl.request(message);
-            responseControl.response(socketControl);
+            requestControl.request(socketControl,message);
+            //responseControl.response(socketControl);
         }
     }
 

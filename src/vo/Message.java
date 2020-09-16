@@ -129,7 +129,6 @@ public class Message {
 
             target[i++] = (byte) (datalength>>8);
             target[i++] = (byte) (datalength);
-
             tokens = address.split("\\.");
             for(int j=0;j<tokens.length;j++) {
                 int token = Integer.valueOf( tokens[j] );

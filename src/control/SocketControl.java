@@ -28,7 +28,6 @@ public class SocketControl {
         try {
             this.socket = new DatagramSocket(53);
         } catch (Exception e) {
-            System.out.println(e);
             System.out.println("bug in socket create\n");
             e.printStackTrace();
         }
