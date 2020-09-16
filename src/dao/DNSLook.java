@@ -49,7 +49,8 @@ public class DNSLook {
     }
 
     public String look(String queryname) {
-        for(int i=0; i<list.size(); i++) {
+        int i;
+        for(i=0; i<list.size(); i++) {
             if(list.get(i)[1].equals(queryname)) {
                 if(list.get(i)[0].equals("0.0.0.0")) {
                     return "ban";

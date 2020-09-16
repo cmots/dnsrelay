@@ -9,6 +9,7 @@ import dao.DNSLook;
 import vo.Message;
 
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 
 public class RequestControl {
     public void request(SocketControl socket, Message message) {
@@ -30,7 +31,7 @@ public class RequestControl {
 
                         case "miss":
                             System.out.println("Query target cannot found");
-                            socket.send(message.makePacket(false), dnsLook.address, 9527);
+                            socket.send(message.makePacket(false), dnsLook.address, 3344);
                             responseControl.response(clientPort,socket);
                             break;
 
@@ -59,7 +60,7 @@ public class RequestControl {
 
                         case "miss":
                             System.out.println("Query target cannot found");
-                            socket.send(message.makePacket(false), dnsLook.address, 9527);
+                            socket.send(message.makePacket(false), dnsLook.address, 53);
                             responseControl.response(clientPort,socket);
                             break;
 
@@ -76,8 +77,7 @@ public class RequestControl {
                 default:
                     System.out.println("无可奈何花落去，似曾相识燕归来。\n");
             }
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
