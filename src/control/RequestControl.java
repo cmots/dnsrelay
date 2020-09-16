@@ -6,62 +6,81 @@
 package control;
 
 import dao.DNSLook;
-import org.xbill.DNS.Message;
-import org.xbill.DNS.Name;
-import org.xbill.DNS.Record;
+import vo.Message;
 
 import java.net.DatagramPacket;
 
 public class RequestControl {
-    public boolean localRequest(DatagramPacket packet){
-        byte[] data = packet.getData();
+    public void request(Message message) {
+        SocketControl socket = new SocketControl();
         try {
-            Message message = new Message(data);
-            Record question = message.getQuestion();
-            Name name = question.getName();
+            DNSLook dnsLook = new DNSLook();
+            String ip = dnsLook.look(message.getQueryName());
+            System.out.println(ip);
+            switch (message.getQueryType()) {
+                case 1:
+                    System.out.println("** IPv4 query **");
+                    switch (ip) {
+                        case "ban":
+                            System.out.println("Query target is banned");
+                            message.setRelyCode(3);
+                            message.setAnswerName(ip);
+                            socket.send(message.makePacket(false), "127.0.0.1", 53);
+                            break;
 
-        }
-        catch (Exception e){
+                        case "miss":
+                            System.out.println("Query target cannot found");
+                            socket.send(message.makePacket(false), dnsLook.address, 53);
+                            break;
+
+                        default:
+                            System.out.println("Query target found ");
+
+                            message.setAnswerRRs(1);
+                            message.setQR(1);
+                            message.setAnswerName(ip);
+                            socket.send(message.makePacket(true), "127.0.0.1", 53);
+                            System.out.println("cao");
+                            break;
+                    }
+                    break;
+
+                case 28:
+                    System.out.println("** IPv6 query **");
+                    switch (ip) {
+                        case "ban":
+                            System.out.println("Query target is banned");
+                            message.setRelyCode(3);
+                            message.setAnswerName(ip);
+                            socket.send(message.makePacket(false), "127.0.0.1", 53);
+                            break;
+
+                        case "miss":
+                            System.out.println("Query target cannot found");
+                            socket.send(message.makePacket(false), dnsLook.address, 53);
+                            break;
+
+                        default:
+                            System.out.println("Query target found ");
+
+                            message.setAnswerRRs(1);
+                            message.setQR(1);
+                            message.setAnswerName(ip);
+                            socket.send(message.makePacket(true), "127.0.0.1", 53);
+                            System.out.println("cao");
+                            break;
+                    }
+                    break;
+
+                default:
+                    System.out.println("无可奈何花落去，似曾相识燕归来。\n");
+            }
+        } catch (
+                Exception e) {
             e.printStackTrace();
         }
 
-
+        return;
     }
 
-    public void request(SocketControl socket, DatagramPacket packet){
-        byte[] data = packet.getData();
-        byte[] target;
-        int port = packet.getPort();
-        DNSLook dnsLook = new DNSLook();
-        String queryName = "";
-        int i = 12;
-        while(data[i]!=0) {
-            int num = data[i];
-            target = new byte[num];
-            System.arraycopy(data, ++i, target, 0, num);
-            queryName += new String(target);
-            i += num;
-            if(data[i]!=0){
-                queryName += ".";
-            }
-        }
-        String result = dnsLook.look(queryName);
-        try{
-            if(result.equals("ban")){
-                System.out.println("IP Address is 0.0.0.0");
-                //
-                return;
-                //
-            }else if(result.equals("miss")){
-                System.out.println("Query target not found ");
-                socket.send(data, dnsLook.address, port);
-            }else{
-                System.out.println("Query target found ");
-
-                socket.send(data, result, port);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 }

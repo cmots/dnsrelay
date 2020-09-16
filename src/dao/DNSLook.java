@@ -8,7 +8,7 @@ public class DNSLook {
     public String address;
 
     public DNSLook(){
-        File file = new File("../resources/dnsrelay.txt");
+        File file = new File("resources/dnsrelay.txt");
         if(file.isFile() && file.exists()){
             try {
                 list = new ArrayList<>();
@@ -28,7 +28,7 @@ public class DNSLook {
             System.out.println("dnsrelay.txt cannot found!");
         }
 
-        file = new File("../resources/config.txt");
+        file = new File("resources/config.txt");
         if(file.isFile() && file.exists()) {
             try {
                 list = new ArrayList<>();
