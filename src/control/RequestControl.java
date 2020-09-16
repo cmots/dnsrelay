@@ -15,6 +15,8 @@ public class RequestControl {
         try {
             DNSLook dnsLook = new DNSLook();
             String ip = dnsLook.look(message.getQueryName());
+            ResponseControl responseControl = new ResponseControl();
+            int clientPort = message.getClientPort();
             switch (message.getQueryType()) {
                 case 1:
                     System.out.println("** IPv4 query **");
@@ -23,12 +25,13 @@ public class RequestControl {
                             System.out.println("Query target is banned");
                             message.setRelyCode(3);
                             message.setAnswerName(ip);
-                            socket.send(message.makePacket(false), "127.0.0.1", 53);
+                            socket.send(message.makePacket(false), "127.0.0.1", clientPort);
                             break;
 
                         case "miss":
                             System.out.println("Query target cannot found");
-                            socket.send(message.makePacket(false), dnsLook.address, 53);
+                            socket.send(message.makePacket(false), dnsLook.address, 9527);
+                            responseControl.response(clientPort,socket);
                             break;
 
                         default:
@@ -38,7 +41,7 @@ public class RequestControl {
                             message.setAnswerRRs(1);
                             message.setQR(1);
                             message.setAnswerName(ip);
-                            socket.send(message.makePacket(true), "127.0.0.1", 53);
+                            socket.send(message.makePacket(true), "127.0.0.1", clientPort);
                             break;
                     }
                     break;
@@ -50,12 +53,13 @@ public class RequestControl {
                             System.out.println("Query target is banned");
                             message.setRelyCode(3);
                             message.setAnswerName(ip);
-                            socket.send(message.makePacket(false), "127.0.0.1", 53);
+                            socket.send(message.makePacket(false), "127.0.0.1", clientPort);
                             break;
 
                         case "miss":
                             System.out.println("Query target cannot found");
-                            socket.send(message.makePacket(false), dnsLook.address, 53);
+                            socket.send(message.makePacket(false), dnsLook.address, 9527);
+                            responseControl.response(clientPort,socket);
                             break;
 
                         default:
@@ -64,8 +68,7 @@ public class RequestControl {
                             message.setAnswerRRs(1);
                             message.setQR(1);
                             message.setAnswerName(ip);
-                            socket.send(message.makePacket(true), "127.0.0.1", 53);
-                            System.out.println("cao");
+                            socket.send(message.makePacket(true), "127.0.0.1", clientPort);
                             break;
                     }
                     break;

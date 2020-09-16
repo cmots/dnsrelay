@@ -5,18 +5,13 @@
  */
 package control;
 
+import dao.DNSLook;
 import vo.Message;
 
-
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-
 public class ResponseControl {
-    public void response(SocketControl socket){
+    public void response(int clientPort,SocketControl socket){
         Message message = socket.receive();
-        socket.send(message.makePacket(false), "127.0.0.1", 53);
-        System.out.println(message.getQueryName());
-        System.out.println("type:"+message.getQueryType());
+        socket.send(message.makePacket(false), "127.0.0.1", clientPort);
         return;
     }
 }

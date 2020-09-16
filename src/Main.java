@@ -26,7 +26,7 @@ public class Main {
         while(true){
             Message message = socketControl.receive();
             requestControl.request(socketControl,message);
-            //responseControl.response(socketControl);
+            //responseControl.response(,socketControl);
         }
     }
 

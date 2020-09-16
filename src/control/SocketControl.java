@@ -32,7 +32,14 @@ public class SocketControl {
             e.printStackTrace();
         }
     }
-
+    public SocketControl(int port) {
+        try {
+            this.socket = new DatagramSocket(port);
+        } catch (Exception e) {
+            System.out.println("bug in socket create\n");
+            e.printStackTrace();
+        }
+    }
     /**
      * send your UDP data
      *
@@ -78,7 +85,9 @@ public class SocketControl {
         DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length);
         try {
             socket.receive(datagramPacket);
+            int clientPort = datagramPacket.getPort();
             Message message = new Message(datagramPacket.getData());
+            message.setClientPort(clientPort);
             return message;
         } catch (Exception e) {
             System.out.println("bug in receive\n");
