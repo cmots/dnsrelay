@@ -24,8 +24,8 @@ public class RequestControl {
                         case "ban":
                             System.out.println("Query target is banned");
                             message.setRelyCode(3);
-                            message.setAnswerName(ip);
-                            socket.send(message.makePacket(false), "127.0.0.1", clientPort);
+                            message.setAddress("0.0.0.0");
+                            socket.send(message.makePacket(true), "127.0.0.1", clientPort);
                             break;
 
                         case "miss":
@@ -45,15 +45,16 @@ public class RequestControl {
                             break;
                     }
                     break;
-
+                case 12:
+                    break;
                 case 28:
                     System.out.println("** IPv6 query **");
                     switch (ip) {
                         case "ban":
                             System.out.println("Query target is banned");
                             message.setRelyCode(3);
-                            message.setAnswerName(ip);
-                            socket.send(message.makePacket(false), "127.0.0.1", clientPort);
+                            message.setAddress("0.0.0.0");
+                            socket.send(message.makePacket(true), "127.0.0.1", clientPort);
                             break;
 
                         case "miss":
@@ -64,7 +65,6 @@ public class RequestControl {
 
                         default:
                             System.out.println("in local");
-
                             message.setAnswerRRs(1);
                             message.setQR(1);
                             message.setAnswerName(ip);
