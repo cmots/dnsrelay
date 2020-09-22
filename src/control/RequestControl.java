@@ -8,30 +8,27 @@ package control;
 import dao.DNSLook;
 import vo.Message;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-
 public class RequestControl {
     public void request(SocketControl socket, Message message) {
         try {
             DNSLook dnsLook = new DNSLook();
-            String ip = dnsLook.look(message.getQueryName());
+            String ip = dnsLook.look(message.getDomainName());
             ResponseControl responseControl = new ResponseControl();
             int clientPort = message.getClientPort();
-            switch (message.getQueryType()) {
+            switch (message.getDomainType()) {
                 case 1:
                     System.out.println("** IPv4 query **");
                     switch (ip) {
                         case "ban":
                             System.out.println("Query target is banned");
-                            message.setRelyCode(3);
+                            message.setRcode(3);
                             message.setAddress("0.0.0.0");
                             socket.send(message.makePacket(true), "127.0.0.1", clientPort);
                             break;
 
                         case "miss":
                             System.out.println("Query target cannot found");
-                            socket.send(message.makePacket(false), dnsLook.address, 3344);
+                            socket.send(message.makePacket(false), dnsLook.address, 53);
                             responseControl.response(clientPort,socket);
                             break;
 
@@ -39,7 +36,7 @@ public class RequestControl {
                             System.out.println("in local");
                             message.setAddress(ip);
                             System.out.println(ip);
-                            message.setAnswerRRs(1);
+                            message.setAnswerCount(1);
                             message.setQR(1);
                             message.setAnswerName(ip);
                             socket.send(message.makePacket(true), "127.0.0.1", clientPort);
@@ -53,7 +50,7 @@ public class RequestControl {
                     switch (ip) {
                         case "ban":
                             System.out.println("Query target is banned");
-                            message.setRelyCode(3);
+                            message.setRcode(3);
                             message.setAddress("0.0.0.0");
                             socket.send(message.makePacket(true), "127.0.0.1", clientPort);
                             break;
@@ -65,12 +62,16 @@ public class RequestControl {
                             break;
 
                         default:
-                            System.out.println("in local");
-                            message.setAnswerRRs(1);
-                            message.setQR(1);
-                            message.setAnswerName(ip);
-                            socket.send(message.makePacket(true), "127.0.0.1", clientPort);
+                            System.out.println("Query target cannot found");
+                            socket.send(message.makePacket(false), dnsLook.address, 53);
+                            responseControl.response(clientPort,socket);
                             break;
+//                            System.out.println("in local");
+//                            message.setAnswerRRs(1);
+//                            message.setQR(1);
+//                            message.setAnswerName(ip);
+//                            socket.send(message.makePacket(true), "127.0.0.1", clientPort);
+//                            break;
                     }
                     break;
 

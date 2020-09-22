@@ -46,7 +46,7 @@ public class SocketControl {
      * @param data data you want to send
      * @param IP   your destination IP address;
      *             this may be decided in user's command or your setting
-     * @param port the source port, DO NOT use 53 here
+     * @param port the source port
      * @return
      * @author: Cheng Sitong
      */

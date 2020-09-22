@@ -10,7 +10,6 @@ import vo.Message;
 public class ResponseControl {
     public void response(int clientPort,SocketControl socket){
         Message message = socket.receive();
-        System.out.println(message.getQR());
         socket.send(message.makePacket(false), "127.0.0.1", clientPort);
         return;
     }

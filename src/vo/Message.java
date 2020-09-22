@@ -1,26 +1,28 @@
 package vo;
 
 public class Message {
-    private int transactionID;
-    private byte[] flags; //2 byte
-    private int QR;  //0 is query, 1 is response, 1 bit
-    private int relyCode; //0 is no error, 3 is no such name, 4 bits
+    private int ID;
+    private byte[] temp;
+    private int QR;
+    private int Rcode;
+    
+    private int questionCount;
+    private int answerCount;
+    private int authorityCount;
+    private int additionalCount;
 
-    //2 bytes x 4
-    private int questions;
-    private int answerRRs;
-    private int authorityRRs;
-    private int additionalRRs;
+    private String domainName;
+    private int domainType;
+    private int domainClass;
+    private int TTL = 1024;
 
-    private String queryName;
-    private int queryType;  //A(1) is ipv4,  AAAA(28) is ipv6, 2bytes
-    private int queryClass; //0x0001 don't change this!, 2bytes
+    private String answerName;
+    private int answerType = 1;
+    private int answerClass = 1;
 
-    private String answerName; // c00c
-    private int answerType = 1; //A(1) 2bytes
-    private int answerClass = 1; //0x0001 don't change this! 2bytes
-    private int TTL = 1024;        //256 in initiallzation, 4bytes
-    private int datalength = 4;  //ipv4 is 4, 2bytes
+    private int dataLength = 4;
+
+
     private String address;
 
     private byte[] originData;
@@ -29,7 +31,7 @@ public class Message {
     private int clientPort ;
 
     public Message (byte[] packetData) {
-        this.queryName = "";
+        this.domainName = "";
         resolve(packetData);
     }
 
@@ -38,23 +40,23 @@ public class Message {
 
 
         originData = packetData.clone();
-        flags = new byte[2];
-        flags[0] = this.originData[2];
-        flags[1] = this.originData[3];
+        temp = new byte[2];
+        temp[0] = this.originData[2];
+        temp[1] = this.originData[3];
         System.arraycopy(originData, 0, target, 0, 2);
-        transactionID = target[0]*256 + target[1];
+        ID = target[0]*256 + target[1];
 
-        QR = flags[0] & 0xff & 0b10000000;
-        relyCode = flags[1] & 0xff & 0b00001111;
+        QR = temp[0] & 0xff & 0b10000000;
+        Rcode = temp[1] & 0xff & 0b00001111;
 
         System.arraycopy(originData, 4, target, 0, 2);
-        questions = (target[0]&0xff)*256 + (target[1]&0xff);
+        questionCount = (target[0]&0xff)*256 + (target[1]&0xff);
         System.arraycopy(originData, 6, target, 0, 2);
-        answerRRs = (target[0]&0xff)*256 + (target[1]&0xff);
+        answerCount = (target[0]&0xff)*256 + (target[1]&0xff);
         System.arraycopy(originData, 8, target, 0, 2);
-        authorityRRs = (target[0]&0xff)*256 + (target[1]&0xff);
+        authorityCount = (target[0]&0xff)*256 + (target[1]&0xff);
         System.arraycopy(originData, 10, target, 0, 2);
-        additionalRRs = (target[0]&0xff)*256 + (target[1]&0xff);
+        additionalCount = (target[0]&0xff)*256 + (target[1]&0xff);
 
         int i = 12;
 
@@ -63,41 +65,41 @@ public class Message {
             int num = this.originData[i];
             target = new byte[num];
             System.arraycopy(originData, ++i, target, 0, num);
-            queryName += new String(target);
+            domainName += new String(target);
             i+=num;
             if(this.originData[i]!=0)
-                queryName += ".";
+                domainName += ".";
         }
         i++;
-        queryType = (this.originData[i++]&0xff)*256 + (this.originData[i++]&0xff);
-        queryClass = (this.originData[i++]&0xff)*256 + (this.originData[i++]&0xff);
+        domainType = (this.originData[i++]&0xff)*256 + (this.originData[i++]&0xff);
+        domainClass = (this.originData[i++]&0xff)*256 + (this.originData[i++]&0xff);
 
     }
 
     public byte[] makePacket(boolean rebuildAnswer) {
         byte[] target = new byte[512];
         //transaction ID
-        target[0] = (byte) (this.transactionID>>8);
-        target[1] = (byte) (this.transactionID);
+        target[0] = (byte) (this.ID >>8);
+        target[1] = (byte) (this.ID);
         //transaction flags
-        target[2] = (byte) ((flags[0] & 0b01111111) + (byte)(QR<<7));
-        target[3] = (byte) ((flags[1] & 0b11110000) + relyCode);
+        target[2] = (byte) ((temp[0] & 0b01111111) + (byte)(QR<<7));
+        target[3] = (byte) ((temp[1] & 0b11110000) + Rcode);
         //questions
-        target[4] = (byte) (questions>>8);
-        target[5] = (byte) (questions);
+        target[4] = (byte) (questionCount >>8);
+        target[5] = (byte) (questionCount);
         //answerRRs
-        target[6] = (byte) (answerRRs>>8);
-        target[7] = (byte) (answerRRs);
+        target[6] = (byte) (answerCount >>8);
+        target[7] = (byte) (answerCount);
         //authorityRRs
-        target[8] = (byte) (authorityRRs>>8);
-        target[9] = (byte) (authorityRRs);
+        target[8] = (byte) (authorityCount >>8);
+        target[9] = (byte) (authorityCount);
         //additionalRRs
-        target[10] = (byte) (additionalRRs>>8);
-        target[11] = (byte) (additionalRRs);
+        target[10] = (byte) (additionalCount >>8);
+        target[11] = (byte) (additionalCount);
 
         //query
         int i = 12;
-        String[] tokens = queryName.split("\\.");
+        String[] tokens = domainName.split("\\.");
         for(int j=0;j<tokens.length;j++) {
             target[i++] = (byte) (tokens[j].length());
             byte[] tokenByte = tokens[j].getBytes();
@@ -106,11 +108,11 @@ public class Message {
         }
         target[i++] = (byte) (0);
 
-        target[i++] = (byte) (queryType>>8);
-        target[i++] = (byte) (queryType);
+        target[i++] = (byte) (domainType >>8);
+        target[i++] = (byte) (domainType);
 
-        target[i++] = (byte) (queryClass>>8);
-        target[i++] = (byte) (queryClass);
+        target[i++] = (byte) (domainClass >>8);
+        target[i++] = (byte) (domainClass);
 
         if(rebuildAnswer) {
             target[i++] = (byte) (0xc0);
@@ -127,8 +129,8 @@ public class Message {
             target[i++] = (byte) (TTL>>8);
             target[i++] = (byte) (TTL);
 
-            target[i++] = (byte) (datalength>>8);
-            target[i++] = (byte) (datalength);
+            target[i++] = (byte) (dataLength >>8);
+            target[i++] = (byte) (dataLength);
             tokens = address.split("\\.");
             for(int j=0;j<tokens.length;j++) {
                 int token = Integer.valueOf( tokens[j] );
@@ -146,20 +148,20 @@ public class Message {
         }
     }
 
-    public int getTransactionID() {
-        return transactionID;
+    public int getID() {
+        return ID;
     }
 
-    public void setTransactionID(int transactionID) {
-        this.transactionID = transactionID;
+    public void setID(int ID) {
+        this.ID = ID;
     }
 
-    public byte[] getFlags() {
-        return flags;
+    public byte[] getTemp() {
+        return temp;
     }
 
-    public void setFlags(byte[] flags) {
-        this.flags = flags;
+    public void setTemp(byte[] temp) {
+        this.temp = temp;
     }
 
     public int getQR() {
@@ -170,68 +172,68 @@ public class Message {
         this.QR = QR;
     }
 
-    public int getRelyCode() {
-        return relyCode;
+    public int getRcode() {
+        return Rcode;
     }
 
-    public void setRelyCode(int relyCode) {
-        this.relyCode = relyCode;
+    public void setRcode(int rcode) {
+        this.Rcode = rcode;
     }
 
-    public int getQuestions() {
-        return questions;
+    public int getQuestionCount() {
+        return questionCount;
     }
 
-    public void setQuestions(int questions) {
-        this.questions = questions;
+    public void setQuestionCount(int questionCount) {
+        this.questionCount = questionCount;
     }
 
-    public int getAnswerRRs() {
-        return answerRRs;
+    public int getAnswerCount() {
+        return answerCount;
     }
 
-    public void setAnswerRRs(int answerRRs) {
-        this.answerRRs = answerRRs;
+    public void setAnswerCount(int answerCount) {
+        this.answerCount = answerCount;
     }
 
-    public int getAuthorityRRs() {
-        return authorityRRs;
+    public int getAuthorityCount() {
+        return authorityCount;
     }
 
-    public void setAuthorityRRs(int authorityRRs) {
-        this.authorityRRs = authorityRRs;
+    public void setAuthorityCount(int authorityCount) {
+        this.authorityCount = authorityCount;
     }
 
-    public int getAdditionalRRs() {
-        return additionalRRs;
+    public int getAdditionalCount() {
+        return additionalCount;
     }
 
-    public void setAdditionalRRs(int additionalRRs) {
-        this.additionalRRs = additionalRRs;
+    public void setAdditionalCount(int additionalCount) {
+        this.additionalCount = additionalCount;
     }
 
-    public String getQueryName() {
-        return queryName;
+    public String getDomainName() {
+        return domainName;
     }
 
-    public void setQueryName(String queryName) {
-        this.queryName = queryName;
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
     }
 
-    public int getQueryType() {
-        return queryType;
+    public int getDomainType() {
+        return domainType;
     }
 
-    public void setQueryType(int queryType) {
-        this.queryType = queryType;
+    public void setDomainType(int domainType) {
+        this.domainType = domainType;
     }
 
-    public int getQueryClass() {
-        return queryClass;
+    public int getDomainClass() {
+        return domainClass;
     }
 
-    public void setQueryClass(int queryClass) {
-        this.queryClass = queryClass;
+    public void setDomainClass(int domainClass) {
+        this.domainClass = domainClass;
     }
 
     public String getAnswerName() {
@@ -266,12 +268,12 @@ public class Message {
         this.TTL = TTL;
     }
 
-    public int getDatalength() {
-        return datalength;
+    public int getDataLength() {
+        return dataLength;
     }
 
-    public void setDatalength(int datalength) {
-        this.datalength = datalength;
+    public void setDataLength(int dataLength) {
+        this.dataLength = dataLength;
     }
 
     public String getAddress() {
