@@ -44,6 +44,8 @@ public class RequestControl {
                     }
                     break;
                 case 12:
+                    socket.send(message.makePacket(false), dnsLook.address, 53);
+                    responseControl.response(clientPort,socket);
                     break;
                 case 28:
                     System.out.println("** IPv6 query **");
